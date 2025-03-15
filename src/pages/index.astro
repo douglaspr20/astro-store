@@ -20,7 +20,10 @@ const { data, error } = await Astro.callAction(actions.getProductsByPage, {
 
 console.log('error', error);
 
-console.log('ENV', import.meta.env);
+console.log('ENV', import.meta.env.CLOUDINARY_API_KEY);
+console.log('ENV', import.meta.env.CLOUDINARY_CLOUD_NAME);
+console.log('ENV', import.meta.env.ASTRO_DB_REMOTE_URL);
+console.log('ENV', import.meta.env.AUTH_SECRET);
 
 if (error) {
   return Astro.redirect('/');
