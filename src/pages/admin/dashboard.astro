@@ -1,0 +1,80 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import Pagination from '@/components/shared/Pagination.astro';
+import { actions } from 'astro:actions';
+import { formatCurrency } from '@/utils';
+import ProductImage from '@/components/products/ProductImage.astro';
+
+export const prerender = false;
+
+const { searchParams } = Astro.url;
+
+const page = Number(searchParams.get('page') ?? 1);
+
+if (page < 1) {
+  return Astro.redirect('/');
+}
+
+const { data, error } = await Astro.callAction(actions.getProductsByPage, {
+  page,
+});
+
+if (error) {
+  return Astro.redirect('/');
+}
+
+const { products, totalPages } = data;
+---
+
+<MainLayout title='Panel administraivo'>
+  <h1>Dashboard</h1>
+  <p>Listado de productos</p>
+
+  <div class='flex justify-end'>
+    <a
+      href='/admin/products/create'
+      class='bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition-all'
+    >
+      Crear producto
+    </a>
+  </div>
+
+  <table class='w-full mt-5 border-collapse border border-gray-300'>
+    <thead>
+      <tr>
+        <th class='text-center bg-gray-300'>Imagen</th>
+        <th class='text-center bg-gray-300'>Títutlo</th>
+        <th class='text-center bg-gray-300'>Precio</th>
+        <th class='text-center bg-gray-300'>Inventario</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        products.map((product) => (
+          <tr>
+            <td class='text-center'>
+              <ProductImage
+                src={product.images.split(',')[0]}
+                alt={product.title}
+                className='w-16 h-16'
+              />
+            </td>
+            <td class='text-center'>
+              <a
+                href={`/admin/products/${product.slug}`}
+                class='hover:underline cursor-pointer text-blue-500 font-semibold'
+                data-astro-prefetch='load'
+              >
+                {product.title}
+              </a>
+            </td>
+            <td class='text-center'>{formatCurrency(product.price)}</td>
+            <td class='text-center'>{product.stock}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <Pagination totalPages={totalPages} />
+</MainLayout>
