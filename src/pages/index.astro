@@ -18,6 +18,10 @@ const { data, error } = await Astro.callAction(actions.getProductsByPage, {
   page,
 });
 
+console.log('error', error);
+
+console.log('ENV', import.meta.env);
+
 if (error) {
   return Astro.redirect('/');
 }
